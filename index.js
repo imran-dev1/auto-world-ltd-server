@@ -29,6 +29,14 @@ async function run() {
       const products = await cursor.toArray();
       res.send(products);
     });
+
+    // Delete api to delete one data
+    app.delete("/products/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const result = await productsCollection.deleteOne(filter);
+      res.send(result);
+    });
   } finally {
   }
 }
