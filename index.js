@@ -37,6 +37,12 @@ async function run() {
       const result = await productsCollection.deleteOne(filter);
       res.send(result);
     });
+    // Post api to insert one data
+    app.post("/products", async (req, res) => {
+      const data = req.body;
+      const result = await productsCollection.insertOne(data);
+      res.send(result);
+    });
   } finally {
   }
 }
