@@ -18,16 +18,21 @@ const client = new MongoClient(uri, {
 });
 
 async function run() {
-try {
-await client.connect();
-const productsCollection = client.db('autoWorld').collection('products')
+  try {
+    await client.connect();
+    const productsCollection = client.db("autoWorld").collection("products");
 
-    console.log('DB connected');
-}finally{
-
-}}
+    // Get api to read data
+    app.get("/products", async (req, res) => {
+      const query = req.query;
+      const cursor = productsCollection.find(query);
+      const products = await cursor.toArray();
+      res.send(products);
+    });
+  } finally {
+  }
+}
 run().catch(console.dir);
-
 
 app.get("/", (req, res) => {
   res.send("Welcome to express server!");
