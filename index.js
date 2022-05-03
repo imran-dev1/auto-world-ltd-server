@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json());
 
 //Mongodb Connection
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.oho5a.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
@@ -22,12 +22,20 @@ async function run() {
     await client.connect();
     const productsCollection = client.db("autoWorld").collection("products");
 
-    // Get api to read data
+    // Get api to read all data
     app.get("/products", async (req, res) => {
       const query = req.query;
       const cursor = productsCollection.find(query);
       const products = await cursor.toArray();
       res.send(products);
+    });
+
+    // Get api to read a data
+    app.get("/product/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const product = await productsCollection.findOne(filter);
+      res.send(product);
     });
 
     // Delete api to delete one data
