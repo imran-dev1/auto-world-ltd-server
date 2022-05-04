@@ -30,7 +30,7 @@ async function run() {
       res.send(products);
     });
 
-    // Get api to read a data
+    // Get api to read a specific data
     app.get("/product/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: ObjectId(id) };
@@ -38,17 +38,31 @@ async function run() {
       res.send(product);
     });
 
+    // Post api to insert one data
+    app.post("/products", async (req, res) => {
+      const data = req.body;
+      const result = await productsCollection.insertOne(data);
+      res.send(result);
+    });
+
     // Delete api to delete one data
-    app.delete("/products/:id", async (req, res) => {
+    app.delete("/product/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: ObjectId(id) };
       const result = await productsCollection.deleteOne(filter);
       res.send(result);
     });
-    // Post api to insert one data
-    app.post("/products", async (req, res) => {
-      const data = req.body;
-      const result = await productsCollection.insertOne(data);
+
+    // Put api to update one data
+    app.patch("/product/:id", async (req, res) => {
+      const id = req.params.id;
+      const updates = req.body;
+      const filter = { _id: ObjectId(id) };
+      // const options = { upsert: true };
+      const updateDoc = {
+        $set: updates,
+      };
+      const result = await productsCollection.updateOne(filter, updateDoc);
       res.send(result);
     });
   } finally {
