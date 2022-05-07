@@ -24,8 +24,27 @@ async function run() {
 
     // Get api to read all data
     app.get("/products", async (req, res) => {
+      console.log(req.query);
+      const page = parseInt(req.query.page);
+      const items = parseInt(req.query.items);
+      const cursor = productsCollection.find({});
+      let products;
+      if (page || items) {
+        products = await cursor
+          .skip(page * items)
+          .limit(items)
+          .toArray();
+      } else {
+        products = await cursor.toArray();
+      }
+      res.send(products);
+    });
+
+    // Get api to read only my items
+    app.get("/myItems", async (req, res) => {
       const query = req.query;
       const cursor = productsCollection.find(query);
+
       const products = await cursor.toArray();
       res.send(products);
     });
