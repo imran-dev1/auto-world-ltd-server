@@ -38,6 +38,13 @@ async function run() {
       res.send(product);
     });
 
+    // Get api to read data count
+    app.get("/productCount", async (req, res) => {
+      const query = {};
+      const count = await productsCollection.countDocuments(query);
+      res.send({ count });
+    });
+
     // Post api to insert one data
     app.post("/products", async (req, res) => {
       const data = req.body;
