@@ -3,7 +3,7 @@ const cors = require("cors");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const app = express();
-// const process.env.PORT = process.env.process.env.PORT || 4000;
+const port = process.env.PORT;
 
 //Use Middleware
 app.use(cors());
@@ -39,6 +39,14 @@ async function run() {
         products = await cursor.toArray();
       }
       res.send(products);
+    });
+
+    // Get api to read 6 data for home
+    app.get("/homeInventories", async (req, res) => {
+      const query = req.query;
+      const cursor = productsCollection.find(query);
+      const result = await cursor.limit(6).toArray();
+      res.send(result);
     });
 
     // Get api to read only my items
@@ -158,6 +166,6 @@ app.get("/", (req, res) => {
   res.send("Welcome to express server!");
 });
 
-app.listen(process.env.PORT, () => {
-  console.log(`Server is running on ${process.env.PORT}`);
+app.listen(port, () => {
+  console.log(`Server is running on ${port}`);
 });
