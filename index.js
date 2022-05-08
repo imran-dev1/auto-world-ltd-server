@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
+const jwt = require("jsonwebtoken");
 const app = express();
 const port = 4000;
 
@@ -67,16 +68,56 @@ async function run() {
     // Post api to insert one data
     app.post("/products", async (req, res) => {
       const data = req.body;
-      const result = await productsCollection.insertOne(data);
-      res.send(result);
+      const accessInfo = req.headers.authorization;
+      if (accessInfo) {
+        const [email, accessToken] = accessInfo.split(" ");
+        const decoded = tokenVerify(accessToken);
+        if (email === decoded.email) {
+          const result = await productsCollection.insertOne(data);
+          res.send({ message: "success" });
+        } else {
+          res.send({ message: "failed" });
+        }
+      } else {
+        res.send({ message: "Unauthorize access" });
+      }
     });
+
+    function tokenVerify(accessToken) {
+      let email;
+      jwt.verify(
+        accessToken,
+        process.env.ACCESS_TOKEN_SECRET_KEY,
+        function (err, decoded) {
+          if (err) {
+            email = "Invalid email";
+          }
+          if (decoded) {
+            email = decoded;
+          }
+        }
+      );
+      console.log(email);
+      return email;
+    }
 
     // Delete api to delete one data
     app.delete("/product/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: ObjectId(id) };
-      const result = await productsCollection.deleteOne(filter);
-      res.send(result);
+      const accessInfo = req.headers.authorization;
+      if (accessInfo) {
+        const [email, accessToken] = accessInfo.split(" ");
+        const decoded = tokenVerify(accessToken);
+        if (email === decoded.email) {
+          const result = await productsCollection.deleteOne(filter);
+          res.send({ message: "success" });
+        } else {
+          res.send({ message: "failed" });
+        }
+      } else {
+        res.send({ message: "Unauthorize access" });
+      }
     });
 
     // Patch api to update properties of a data
@@ -84,12 +125,29 @@ async function run() {
       const id = req.params.id;
       const updates = req.body;
       const filter = { _id: ObjectId(id) };
-      // const options = { upsert: true };
       const updateDoc = {
         $set: updates,
       };
-      const result = await productsCollection.updateOne(filter, updateDoc);
-      res.send(result);
+      const accessInfo = req.headers.authorization;
+      if (accessInfo) {
+        const [email, accessToken] = accessInfo.split(" ");
+        const decoded = tokenVerify(accessToken);
+        if (email === decoded.email) {
+          const result = await productsCollection.updateOne(filter, updateDoc);
+          res.send({ message: "success" });
+        } else {
+          res.send({ message: "failed" });
+        }
+      } else {
+        res.send({ message: "Unauthorize access" });
+      }
+    });
+
+    // JWT token generate
+    app.post("/login", async (req, res) => {
+      const email = req.body;
+      const token = jwt.sign(email, process.env.ACCESS_TOKEN_SECRET_KEY);
+      res.send({ token });
     });
   } finally {
   }
