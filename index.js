@@ -3,7 +3,7 @@ const cors = require("cors");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const app = express();
-const port = 4000;
+// const process.env.PORT = process.env.process.env.PORT || 4000;
 
 //Use Middleware
 app.use(cors());
@@ -17,7 +17,7 @@ const client = new MongoClient(uri, {
   useUnifiedTopology: true,
   serverApi: ServerApiVersion.v1,
 });
-
+console.log(uri);
 async function run() {
   try {
     await client.connect();
@@ -158,6 +158,6 @@ app.get("/", (req, res) => {
   res.send("Welcome to express server!");
 });
 
-app.listen(port, () => {
-  console.log(`Server is running on ${port}`);
+app.listen(process.env.PORT, () => {
+  console.log(`Server is running on ${process.env.PORT}`);
 });
